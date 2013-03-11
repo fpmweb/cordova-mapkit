@@ -95,12 +95,24 @@
   [self.mapView removeAnnotations:self.mapView.annotations];
 }
 
+
+
 - (void)addMapPins:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
 {
-
-  NSArray *pins = [[arguments objectAtIndex:0] objectFromJSONString];
+    
+    NSLog(@"addMapPins argument[0]: %@", [arguments objectAtIndex:0]);
+    NSString *argString = [arguments objectAtIndex:0];
+    NSLog(@"argString: %@", argString);
+    NSLog(@"argString class: %@", [[argString class] description]);
+    //    NSArray *pins = [argString objectFromJSONString];
+    NSError *e = nil;
+    NSData *jsonData = [argString dataUsingEncoding:NSUTF8StringEncoding];
+    NSArray *pins = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:&e]; //[argString objectFromJSONString];
+    
+    NSLog(@"pins: %@", pins);
+    //  NSArray *pins = [[arguments objectAtIndex:0] objectFromJSONString];
 	
-  for (int y = 0; y < pins.count; y++) 
+    for (int y = 0; y < pins.count; y++)
 	{
 		NSDictionary *pinData = [pins objectAtIndex:y];
 		CLLocationCoordinate2D pinCoord = { [[pinData objectForKey:@"lat"] floatValue] , [[pinData objectForKey:@"lon"] floatValue] };
@@ -110,15 +122,46 @@
 		NSString *pinColor=[[pinData valueForKey:@"pinColor"] description];
 		NSInteger index=[[pinData valueForKey:@"index"] integerValue];
 		BOOL selected = [[pinData valueForKey:@"selected"] boolValue];
-
+        BOOL rightCallout = [[pinData valueForKey:@"rightCallout"] boolValue];
+        
+        
 		CDVAnnotation *annotation = [[CDVAnnotation alloc] initWithCoordinate:pinCoord index:index title:title subTitle:subTitle imageURL:imageURL];
 		annotation.pinColor=pinColor;
 		annotation.selected = selected;
-
+        
+        
 		[self.mapView addAnnotation:annotation];
 		[annotation release];
 	}
 }
+
+
+//- (void)addMapPins:(NSMutableArray*)arguments withDict:(NSMutableDictionary*)options;
+//{
+//
+//  NSArray *pins = [[arguments objectAtIndex:0] objectFromJSONString];
+//	
+//  for (int y = 0; y < pins.count; y++) 
+//	{
+//		NSDictionary *pinData = [pins objectAtIndex:y];
+//		CLLocationCoordinate2D pinCoord = { [[pinData objectForKey:@"lat"] floatValue] , [[pinData objectForKey:@"lon"] floatValue] };
+//		NSString *title=[[pinData valueForKey:@"title"] description];
+//		NSString *subTitle=[[pinData valueForKey:@"subTitle"] description];
+//		NSString *imageURL=[[pinData valueForKey:@"imageURL"] description];
+//		NSString *pinColor=[[pinData valueForKey:@"pinColor"] description];
+//		NSInteger index=[[pinData valueForKey:@"index"] integerValue];
+//		BOOL selected = [[pinData valueForKey:@"selected"] boolValue];
+//
+//		CDVAnnotation *annotation = [[CDVAnnotation alloc] initWithCoordinate:pinCoord index:index title:title subTitle:subTitle imageURL:imageURL];
+//		annotation.pinColor=pinColor;
+//		annotation.selected = selected;
+//
+//		[self.mapView addAnnotation:annotation];
+//		[annotation release];
+//	}
+//}
+
+
 
 /**
  * Set annotations and mapview settings
@@ -170,7 +213,7 @@
 	
 	CGRect frame = CGRectMake(285.0,12.0,  29.0, 29.0);
 	
-	[ self.imageButton setImage:[UIImage imageNamed:@"www/map-close-button.png"] forState:UIControlStateNormal];
+	[ self.imageButton setImage:[UIImage imageNamed:@"www/resources/icons/map-close-button.png"] forState:UIControlStateNormal];
 	[ self.imageButton setFrame:frame];
 	[ self.imageButton addTarget:self action:@selector(closeButton:) forControlEvents:UIControlEventTouchUpInside];
 }
